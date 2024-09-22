@@ -1,0 +1,9 @@
+{
+  "name": "@weather-app/shared",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  }
+}

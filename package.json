@@ -1,0 +1,12 @@
+{
+  "name": "weather-app-workspace",
+  "private": true,
+  "scripts": {
+    "dev:backend": "pnpm --filter backend start",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm --filter shared build && pnpm --filter backend build && pnpm --filter frontend build",
+    "start": "pnpm --filter backend start:prod",
+    "backend": "pnpm --filter backend",
+    "frontend": "pnpm --filter frontend"
+  }
+}
