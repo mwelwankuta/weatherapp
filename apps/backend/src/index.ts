@@ -1,17 +1,13 @@
-import express from "express";
-import cors from "cors";
-import axios from "axios";
 import { Redis } from "@upstash/redis";
-import {
-  CurrentWeather,
-  ForecastDay,
-  SearchHistoryItem,
-} from "@weather-app/shared";
+import { SearchHistoryItem } from "@weather-app/shared";
+import axios from "axios";
+import cors from "cors";
 import dotenv from "dotenv";
+import express from "express";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 const WEATHERBIT_API_KEY = process.env.WEATHERBIT_API_KEY;
 const WEATHERBIT_BASE_URL = process.env.WEATHERBIT_BASE_URL;
 

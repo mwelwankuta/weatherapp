@@ -7,7 +7,9 @@ import {
 } from "@weather-app/shared";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-console.log(API_BASE_URL, "API");
+if (!API_BASE_URL) {
+  throw new Error("API_BASE_URL is not set");
+}
 
 function App() {
   const [city, setCity] = useState("Lusaka");
@@ -22,13 +24,8 @@ function App() {
   useEffect(() => {
     (async () => {
       await fetchLocation();
-
-      await fetchCurrentWeather();
-      await fetchForecast();
-
-      await fetchHistory();
     })();
-  }, [city, country]);
+  }, []);
 
   const fetchLocation = async () => {
     if (navigator.geolocation) {
@@ -94,17 +91,18 @@ function App() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchCurrentWeather();
-    fetchForecast();
-    fetchHistory();
-  };
-
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">Weather App</h1>
-      <form onSubmit={handleSubmit} className="mb-4">
+      <form
+        onSubmit={(e: React.FormEvent) => {
+          e.preventDefault();
+          fetchCurrentWeather();
+          fetchForecast();
+          fetchHistory();
+        }}
+        className="mb-4"
+      >
         <input
           type="text"
           value={city}
