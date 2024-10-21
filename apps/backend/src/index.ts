@@ -11,6 +11,8 @@ const PORT = process.env.PORT || 8080;
 const WEATHERBIT_API_KEY = process.env.WEATHERBIT_API_KEY;
 const WEATHERBIT_BASE_URL = process.env.WEATHERBIT_BASE_URL;
 
+console.log(WEATHERBIT_API_KEY, WEATHERBIT_BASE_URL)
+
 app.use(cors());
 app.use(express.json());
 
@@ -33,6 +35,7 @@ async function getOrSetCache<T>(key: string, cb: () => Promise<T>): Promise<T> {
 app.get("/api/current/:city/:country", async (req, res) => {
   try {
     const { city, country } = req.params;
+    console.log(city, country)
     const cacheKey = `current:${city}:${country}`;
 
     const currentWeather = await getOrSetCache(cacheKey, async () => {

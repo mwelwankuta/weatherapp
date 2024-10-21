@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { CurrentWeather, ForecastDay } from "@weather-app/shared";
 import axios from "axios";
-import {
-  CurrentWeather,
-  ForecastDay,
-  SearchHistoryItem,
-} from "@weather-app/shared";
+import React, { useEffect, useState } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 if (!API_BASE_URL) {
@@ -12,14 +8,15 @@ if (!API_BASE_URL) {
 }
 
 function App() {
-  const [city, setCity] = useState("Lusaka");
-  const [country, setCountry] = useState("ZM");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
   const [currentWeather, setCurrentWeather] = useState<CurrentWeather | null>(
     null
   );
+  const [loading, setLoading] = useState(false);
   const [forecast, setForecast] = useState<ForecastDay[] | null>(null);
-  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -80,53 +77,60 @@ function App() {
     }
   };
 
-  const fetchHistory = async () => {
-    try {
-      const response = await axios.get<SearchHistoryItem[]>(
-        `${API_BASE_URL}/history`
-      );
-      setHistory(response.data);
-    } catch (error) {
-      console.error("Error fetching search history:", error);
-    }
-  };
-
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Weather App</h1>
-      <form
-        onSubmit={(e: React.FormEvent) => {
-          e.preventDefault();
-          fetchCurrentWeather();
-          fetchForecast();
-          fetchHistory();
-        }}
-        className="mb-4"
-      >
-        <input
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="City"
-          className="mr-2 p-2 border rounded"
-          required
-        />
-        <input
-          type="text"
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          placeholder="Country Code"
-          className="mr-2 p-2 border rounded"
-          required
-        />
-        <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-          Search
+    <div className="container mx-auto p-4 flex flex-col">
+      {submitted === false && (
+        <div className="flex flex-col self-center">
+          <h1 className="text-3xl font-bold mb-4">Weather App</h1>
+          <form
+            onSubmit={async (e: React.FormEvent) => {
+              setLoading(true);
+              e.preventDefault();
+              await fetchCurrentWeather();
+              await fetchForecast();
+
+              setSubmitted(true);
+              setLoading(false);
+            }}
+            className="mb-4"
+          >
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="City"
+              className="mr-2 p-2 border rounded"
+              required
+            />
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              placeholder="Country Code"
+              className="mr-2 p-2 border rounded"
+              required
+            />
+            <button
+              type="submit"
+              className="bg-blue-500 text-white p-2 rounded"
+            >
+              {loading ? "Loading..." : "Search"}
+            </button>
+          </form>
+        </div>
+      )}
+      {submitted === true && (
+        <button
+          onClick={() => setSubmitted(false)}
+          className="text-semibold bg-gray-100 rounded-md px-4 py-2"
+        >
+          Back
         </button>
-      </form>
+      )}
 
       {error && <p className="text-red-500">{error}</p>}
 
-      {currentWeather && (
+      {currentWeather && submitted === true && (
         <div className="mb-4">
           <h2 className="text-2xl font-bold">
             Current Weather in {currentWeather.city_name},{" "}
@@ -150,7 +154,7 @@ function App() {
         </div>
       )}
 
-      {forecast && (
+      {forecast && submitted === true && (
         <div className="mb-4">
           <h2 className="text-2xl font-bold">16-Day Forecast</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -177,18 +181,6 @@ function App() {
           </div>
         </div>
       )}
-
-      <div>
-        <h2 className="text-2xl font-bold">Search History</h2>
-        <ul>
-          {history.map((item, index) => (
-            <li key={index} className="mb-2">
-              {item.city}, {item.country} -{" "}
-              {new Date(item.timestamp).toLocaleString()}
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }
